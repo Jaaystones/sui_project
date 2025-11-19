@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 
 type VoteModalProps = {
     proposal: Proposal;
+    hasVoted: boolean;
     isOpen: boolean;
     onClose: () => void;
     onVote: (votedYes: boolean) => void;
@@ -15,6 +16,7 @@ type VoteModalProps = {
 
 export const VoteModal: FC<VoteModalProps> = ({ 
     proposal,
+    hasVoted,
     isOpen, 
     onClose, 
     onVote
@@ -22,7 +24,7 @@ export const VoteModal: FC<VoteModalProps> = ({
 
     const { connectionStatus } = useCurrentWallet();
     const suiClient = useSuiClient();
-    const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+    const { mutate: signAndExecute, isPending, isSuccess } = useSignAndExecuteTransaction();
     const packageId = useNetworkVariable("packageId");
     const toastId = useRef<number | string>();
 
@@ -89,10 +91,24 @@ export const VoteModal: FC<VoteModalProps> = ({
     });
     }
 
+    const votingDisable = hasVoted || isPending || isSuccess;
+
     return(
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full">
-                <h2 className="text-2xl font-bold mb-4">{proposal.title}</h2>
+                <div className="flex items-start justify-between">
+                    <h2 className="text-2xl font-bold mb-4">{proposal.title}</h2>
+                    {hasVoted || isSuccess ? (
+                        <div className="w-14 text-sm p-1 font-medium rounded-full bg-green-100 text-gray-800 text-center">
+                            Voted
+                        </div>
+                    ) : 
+                        <div className="w-24 text-sm p-1 font-medium rounded-full bg-red-100 text-gray-800 text-center">
+                            Not Voted
+                        </div>
+                    }
+                </div>
+
                 <p className="mb-6 text-gray-700 dark:text-gray-300">{proposal.description}</p>
                 <div className="flex flex-col gap-4">
                     <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
@@ -103,14 +119,18 @@ export const VoteModal: FC<VoteModalProps> = ({
                         {connectionStatus === "connected" ? 
                         <>
                             <button
+                            disabled={votingDisable}
                                 onClick={() => vote(true)}
-                                className="flex-1 bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition-colors"
+                                className="flex-1 bg-green-500 text-white px-6 
+                                py-2 rounded hover:bg-green-600 transition-colors disabled:bg-gray-300 disabled:cusor-not-allowed"
                             >
                                 Vote Yes
                             </button>
                             <button
+                            disabled={votingDisable}
                               onClick={() => vote(false)}
-                              className="flex-1 bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 transistion-colors"
+                              className="flex-1 bg-red-500 text-white px-6 py-2 
+                              rounded hover:bg-red-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                             >
                                 Vote No
                             </button>

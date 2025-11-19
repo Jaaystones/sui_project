@@ -13,6 +13,7 @@ out/
 temp/
 tmp/
 *.tmp
+*.txt
 
 # ENV
 .env

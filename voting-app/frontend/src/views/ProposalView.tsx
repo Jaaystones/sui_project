@@ -1,12 +1,15 @@
 import { useSuiClientQuery } from "@mysten/dapp-kit";
 import { useNetworkVariable } from "../config/NetworkConfig";
-import { SuiObjectData } from "@mysten/sui/client";
+import { PaginatedObjectsResponse, SuiObjectData } from "@mysten/sui/client";
 import { ProposalItem } from "../components/proposal/ProposalItem";
+import { useVoteNfts } from "../hooks/useVoteNfts";
+import { VoteNft } from "../types";
 
 
 
 const ProposalView = () => {
-  const dashboardId = useNetworkVariable("dashboardId")
+  const dashboardId = useNetworkVariable("dashboardId");
+  const { data: voteNftsRes } = useVoteNfts();
   
   // Add error handling
     if (!dashboardId) {
@@ -23,10 +26,12 @@ const ProposalView = () => {
       } 
     )
 
+
     if (isPending) return <div className="text-center text-gray-500">Loading...</div>
     if (error) return <div className="text-center text-red-500">Error: {error.message}</div>
     if (!dataResponse.data) return <div className="text-center text-red-500">No data found.</div>
 
+    const voteNfts = extractVoteNfts(voteNftsRes);
     
 
   return (
@@ -38,11 +43,16 @@ const ProposalView = () => {
           <ProposalItem 
             key={id} 
             id={id}
+            hasVoted={checkVoteNfts(voteNfts, id)}
           />
         )}
       </div>
     </>
   )
+}
+
+function checkVoteNfts(nfts: VoteNft[], proposalId: string){
+  return nfts.some(nft => nft.proposal_id === proposalId)
 }
 
 function getDashboardFields(data: SuiObjectData) {
@@ -52,6 +62,26 @@ function getDashboardFields(data: SuiObjectData) {
     id: SuiID,
     proposals_ids: string[],
   }
+}
+
+function extractVoteNfts(nfRes: PaginatedObjectsResponse | undefined){
+  if (!nfRes?.data) return [];
+
+  return nfRes.data.map(nftObject => getVoteNft(nftObject.data));
+}
+
+function getVoteNft(nftData: SuiObjectData | undefined | null): VoteNft {
+  if (!nftData?.content || nftData.content.dataType !== "moveObject") {
+    return { id: {id: ""}, url: "", proposal_id:"" };
+  }
+
+  const { proposal_id, url, id } = nftData.content.fields as any;
+
+  return {
+    proposal_id,
+    id,
+    url
+  };
 }
 
 export default ProposalView

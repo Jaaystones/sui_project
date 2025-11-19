@@ -8,9 +8,10 @@ import { VoteModal } from "./VoteModal";
 
 interface ProposalItemProps {
   id: string;
+  hasVoted: boolean;
 }
 
-export const ProposalItem: FC<ProposalItemProps> = ({id}) => {
+export const ProposalItem: FC<ProposalItemProps> = ({id, hasVoted}) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const {data: dataResponse, isPending, error} = useSuiClientQuery(
         "getObject", {
@@ -29,6 +30,9 @@ export const ProposalItem: FC<ProposalItemProps> = ({id}) => {
 
     const expiration = proposal.expiration
     const isExpired = isUnixTimeExpired(expiration);
+    
+    // Don't render expired proposals
+    if (isExpired) return null;
 
     return (
         <>
@@ -60,7 +64,8 @@ export const ProposalItem: FC<ProposalItemProps> = ({id}) => {
             </div>
           </div>
           <VoteModal
-            proposal={proposal} 
+            proposal={proposal}
+            hasVoted={hasVoted} 
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             onVote={(voteYes: boolean) => {
