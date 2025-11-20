@@ -24,7 +24,7 @@ export const VoteModal: FC<VoteModalProps> = ({
 
     const { connectionStatus } = useCurrentWallet();
     const suiClient = useSuiClient();
-    const { mutate: signAndExecute, isPending, isSuccess } = useSignAndExecuteTransaction();
+    const { mutate: signAndExecute, isPending, isSuccess, reset } = useSignAndExecuteTransaction();
     const packageId = useNetworkVariable("packageId");
     const toastId = useRef<number | string>();
 
@@ -33,7 +33,7 @@ export const VoteModal: FC<VoteModalProps> = ({
 
     const showToast = (message: string) => toastId.current = toast(message, {
         position: "top-right",
-        autoClose: 5000,
+        autoClose: false,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -84,11 +84,27 @@ export const VoteModal: FC<VoteModalProps> = ({
                 }
             });
 
+            const eventResult = await suiClient.queryEvents({
+                query: { Transaction: digest }
+            });
+
+            if (eventResult.data.length > 0) {
+                const firstEvent = eventResult.data[0].parsedJson as { proposal_id?: string, voter?: string, vote_yes?: boolean };
+                const id = firstEvent.proposal_id || "No event found for given criteria";
+                const voter = firstEvent.voter || "No event found for given criteria";
+                const voteYes = firstEvent.vote_yes || "No event found for given criteria";
+
+                console.log("Event Captured");
+                console.log(id, voter, voteYes);
+            } else {
+                console.log("No event found for given criteria");
+            }
+            reset();
             dismissToast("Transaction Successful");
             onVote(voteYes)
         }
        
-    });
+    });        
     }
 
     const votingDisable = hasVoted || isPending || isSuccess;

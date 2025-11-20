@@ -9,7 +9,7 @@ import { VoteNft } from "../types";
 
 const ProposalView = () => {
   const dashboardId = useNetworkVariable("dashboardId");
-  const { data: voteNftsRes } = useVoteNfts();
+  const { data: voteNftsRes, refetch: refetchNfts } = useVoteNfts();
   
   // Add error handling
     if (!dashboardId) {
@@ -43,7 +43,8 @@ const ProposalView = () => {
           <ProposalItem 
             key={id} 
             id={id}
-            hasVoted={checkVoteNfts(voteNfts, id)}
+            onVoteSuccess={() => refetchNfts}
+            voteNft={voteNfts.find((nft) => nft.proposal_id === id)}
           />
         )}
       </div>
@@ -51,9 +52,9 @@ const ProposalView = () => {
   )
 }
 
-function checkVoteNfts(nfts: VoteNft[], proposalId: string){
-  return nfts.some(nft => nft.proposal_id === proposalId)
-}
+// function checkVoteNfts(nfts: VoteNft[], proposalId: string){
+//   return nfts.some(nft => nft.proposal_id === proposalId)
+// }
 
 function getDashboardFields(data: SuiObjectData) {
   if (data.content?.dataType !== "moveObject") return null;

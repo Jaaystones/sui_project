@@ -73,4 +73,13 @@ sui client ptb \
 
 
 
+sui client ptb \
+    --move-call 0xabc9070d27bf38cb6a66aab41491586f32cc41fc25ecb62bfc63636595d7f46e::proposal::set_delisted_status \
+    @0xa89354eafa5e905d652c86e700cd9d3c5da1e764f4c2372aa2553a7bf2dc77d6 \
+    @0xca8a2ae62d72457cef4181ca57aabfa0a8aebc79c1709b051c5abd05cc02cc05
 
+
+sui client ptb \
+    --move-call 0xabc9070d27bf38cb6a66aab41491586f32cc41fc25ecb62bfc63636595d7f46e::proposal::remove \
+    @0xa89354eafa5e905d652c86e700cd9d3c5da1e764f4c2372aa2553a7bf2dc77d6 \
+    @0xca8a2ae62d72457cef4181ca57aabfa0a8aebc79c1709b051c5abd05cc02cc05

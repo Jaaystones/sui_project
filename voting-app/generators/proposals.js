@@ -34,9 +34,9 @@ const generatePTBCommand = ({ packageId, adminCapId, dashboardId, numProposals }
 
 //inputs
 const inputs = {
-    packageId: "0x763d7aa04273fd0286432b47f33d3d8b4065264d0e9d5b00253d8c4b6ab361b8",
-    adminCapId: "0xccb7c895a8fcca86f11e76e5f34b09947948312427e04af9a1e8840e8e9a0a5c",
-    dashboardId: "0x3b9fdfb9547bb4cc756b77018f75d6daf25f9fccf846e15245a4244be422503f",
+    packageId: "0xabc9070d27bf38cb6a66aab41491586f32cc41fc25ecb62bfc63636595d7f46e",
+    adminCapId: "0xca8a2ae62d72457cef4181ca57aabfa0a8aebc79c1709b051c5abd05cc02cc05",
+    dashboardId: "0xcf04acdbf6fc71a209bbb5240d01aef22c93deea2c2dbd5f9ab5707374d2feec",
     numProposals: 3,
 };
 

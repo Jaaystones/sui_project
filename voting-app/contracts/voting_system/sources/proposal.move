@@ -3,6 +3,7 @@ use std::string::String;
 use sui::table::{Self, Table};
 use sui::url::{Url, new_unsafe_from_bytes};
 use sui::clock::{Clock};
+use sui::event;
 use voting_system::dashboard::AdminCap;
 
 const EDuplicateVote: u64 = 0;
@@ -26,6 +27,12 @@ public struct Proposal has key {
     voters: Table<address, bool>,
 }
 
+public struct VoteRegistered has copy, drop {
+    proposal_id: ID,
+    voter: address,
+    vote_yes: bool,
+}
+
 public struct VoteProofNFT has key {
     id: UID,
     proposal_id: ID,
@@ -46,6 +53,12 @@ public fun vote(self: &mut Proposal, vote_yes: bool, clock: &Clock, ctx: &mut Tx
     };
     self.voters.add(ctx.sender(), vote_yes);
     issue_vote_proof(self, vote_yes, ctx);
+
+    event::emit(VoteRegistered {
+        proposal_id: self.id.to_inner(),
+        voter: ctx.sender(),
+        vote_yes,
+    });
 }
 
 
@@ -135,7 +148,15 @@ public fun remove(self: Proposal, _admin_cap: &AdminCap) {
     object::delete(id)
 }
 
-public fun change_status(
+public fun set_active_status(self: &mut Proposal, admin_cap: &AdminCap) {
+    self.change_status(admin_cap,  ProposalStatus::Active);
+}
+
+public fun set_delisted_status(self: &mut Proposal, admin_cap: &AdminCap) {
+    self.change_status(admin_cap,  ProposalStatus::Delisted);
+}
+
+fun change_status(
     self: &mut Proposal,
     _admin_cap: &AdminCap,
     status: ProposalStatus
@@ -165,20 +186,4 @@ fun issue_vote_proof(proposal: &Proposal, vote_yes: bool, ctx: &mut TxContext) {
     };
 
     transfer::transfer(proof, ctx.sender());
-}
-
-
-
-
-
-
-#[test_only]
-public fun set_active_status(self: &mut Proposal, admin_cap: &AdminCap) {
-    self.change_status(admin_cap,  ProposalStatus::Active);
-}
-
-
-#[test_only]
-public fun set_delisted_status(self: &mut Proposal, admin_cap: &AdminCap) {
-    self.change_status(admin_cap,  ProposalStatus::Delisted);
 }

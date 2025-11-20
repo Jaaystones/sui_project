@@ -1,8 +1,5 @@
 import { FC } from "react";
 
-
-
-
 type TextProps = {
     text: string;
     isError?: boolean;
