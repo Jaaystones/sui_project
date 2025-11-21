@@ -28,7 +28,7 @@ createRoot(document.getElementById('root')!).render(
 )
 
 function getNetwork() {
-  const networks = ["mainnet", "testnet", "devnet"];
+  const networks = ["mainnet", "testnet", "devnet", "localnet"];
   const network = import.meta.env.VITE_NETWORK;
 
   console.log("Selecting: " + network);
