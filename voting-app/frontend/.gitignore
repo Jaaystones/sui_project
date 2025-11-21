@@ -18,6 +18,9 @@ tmp/
 # ENV
 .env
 *.env
+.env.development
+.env.production
+.env.test
 
 # OS-specific files
 .DS_Store
